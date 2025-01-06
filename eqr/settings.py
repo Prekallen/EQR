@@ -73,13 +73,34 @@ WSGI_APPLICATION = 'eqr.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+'''
+#default SQL 설정
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+'''
+#config 이용해서 key와 password 숨기기
+# - pip install python-decouple 실행
+# -app과 같은 level에서 setting ini 파일을 만들고 설정
 
+from decouple import config
+
+SECRET_KEY = config('DJANGO_SECRET_KEY')
+#PostgreSQL 설정
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'EQR' ,
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': 'localhost',
+        'PORT': '5432',
+
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
