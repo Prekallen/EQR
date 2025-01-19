@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="form-group">
+            <label for="place">업체명</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    id="place"
+                    value="{{ board.place }}"
+                    readonly
+            />
+            <label for="placeNum">전화번호</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    id="placeNum"
+                    value="{{ board.placeNum }}"
+                    readonly
+            />
+            <label for="address">주소</label>
+            <textarea class="form-control" readonly>{{ board.address }}</textarea>
+            <label for="area">지역</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    id="area"
+                    value="{{ board.area }}"
+                    readonly
+            />
+            <label for="placeImage">업체 사진</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    id="placeImage"
+                    value="{{ board.placeImage }}"
+                    readonly
+            />
+        </div>
+        <button class="btn btn-primary">돌아가기</button>
+    </div>
+</div>
+{% endblock %}

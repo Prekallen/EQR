@@ -1,0 +1,18 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <title>My Django App</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h1>Welcome to My Django App! in main app</h1>-->
+<!--</body>-->
+<!--</html>-->
+{% if question_list %}
+    <ul>
+        {% for question in question_list %}
+            <li><a href="/main/{{ question.id }}">{{ question.subject}}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>질문이 없습니다.</p>
+{% endif %}

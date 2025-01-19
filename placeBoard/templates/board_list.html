@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-12">
+        <table class="table">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">업체명</th>
+                <th scope="col">작성자</th>
+                <th scope="col">작성일</th>
+                <th scope="col">최종 수정일</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for board in boards %}
+            <tr>
+                <th scope="row">{{ board.id }}</th>
+                <td>{{ board.place }}</td>
+                <td>{{ board.writer }}</td>
+                <td>{{ board.created_at }}</td>
+                <td>{{ board.updated_at }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <button class="btn btn-primary">글쓰기</button>
+        <button class="btn btn-secondary btn-lg btn-block" onclick="location.href='/board/write/'">글쓰기</button>
+    </div>
+</div>
+{% endblock %}

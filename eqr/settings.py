@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os   #static path를 위해
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,7 +39,34 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+#추가되는 앱을 넣는 곳
+INSTALLED_APPS += [
+    #'main.apps.MainConfig',
+    'main',
+    #Rest framework and CORS
+    'rest_framework',
+    'corsheaders',
+    #'myapp.apps.myappConfig',
+    'myapp',
+    #'member.apps.MemberConfig',
+    'member',
+    #'placeBoard.apps.placeBoardConfig',
+    'placeBoard',
+]
+
+#Rest framework config
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    )
+
+}
+
+
 MIDDLEWARE = [
+    #COR 설정
+    'corsheaders.middleware.CorsMiddleware',
+    #default 설정
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,7 +81,7 @@ ROOT_URLCONF = 'eqr.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'], # 템플릿 디렉토리 경로 설정
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -126,7 +153,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
@@ -136,9 +163,19 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+#static 설정
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+#Media 설정
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+

@@ -1,5 +1,9 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.views.decorators.csrf import csrf_exempt
+from .models import Question
+
+def index(request):
+    return render(request, 'index.html')
 
 topics = [
     {'id':1, 'title':'routing', 'body':'Routing is ....'},
@@ -10,20 +14,20 @@ nextId = len(topics)+1
 
 def html_template(article_tag, id=None):
     global topics
-    contextUI = ''
+    context_ui = ''
     if id != None:
-        contextUI = f'''
+        context_ui = f'''
              <li>
-                <form action="/delete/" method="post">
+                <form action="/crud/delete/" method="post">
                     <input type="hidden" name="id" value="{id}">
                     <input type="submit" value="delete">
                 </form>   
             </li>
-            <li><a href="/update/{id}">update</a></li>
+            <li><a href="/crud/update/{id}">update</a></li>
         '''
     ol = ''
     for topic in topics:
-        ol += f'<li><a href="/read/{topic["id"]}">{topic["title"]}</a></li>'
+        ol += f'<li><a href="/crud/read/{topic["id"]}">{topic["title"]}</a></li>'
     return HttpResponse(f'''
     <html>
     <body>
@@ -33,8 +37,8 @@ def html_template(article_tag, id=None):
         </ol>
         {article_tag}
         <ul>
-            <li><a href="/create/">create</a></li>
-            {contextUI}
+            <li><a href="/crud/create/">create</a></li>
+            {context_ui}
         </ul>
     </body>
     </html>
@@ -60,7 +64,7 @@ def create(request):
     global nextId
     if request.method == 'GET':
         articles = '''
-            <form action="/create/" method="POST">
+            <form action="/crud/create/" method="POST">
                 <p><input type="text" name="title" placeholder="title"></p>
                 <p><textarea name="body" placeholder="body"></textarea></p>
                 <p><input type="submit"></p>
@@ -72,7 +76,7 @@ def create(request):
         body = request.POST['body']
         new_topic =  {"id":nextId, "title":title, "body":body}
         topics.append(new_topic)
-        url = '/read/'+str(nextId)
+        url = '/crud/read/'+str(nextId)
         nextId += 1
         return redirect(url)
 
@@ -101,7 +105,7 @@ def update(request, id):
             if topic['id'] == int(id):
                 topic['title'] = title
                 topic['body'] = body
-        return redirect('/read/'+str(id))
+        return redirect('/crud/read/'+str(id))
 
 
 @csrf_exempt

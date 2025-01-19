@@ -17,7 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from member.views import Home
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('myapp.urls'))
+    path('crud/', include('myapp.urls')),
+    # path('', include('main.urls')),
+    path('member/', include('member.urls')),
+    path('board/', include('placeBoard.urls')),
+    path('',Home),
 ]
