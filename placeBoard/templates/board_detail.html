@@ -31,6 +31,12 @@
                     readonly
             />
             <label for="placeImage">업체 사진</label>
+            {% if board.placeImage %}
+            <br>
+            <img src="{{ board.placeImage.url }}"  width="300">
+            <br>
+            {% else %}
+            {% endif %}
             <input
                     type="text"
                     class="form-control"
@@ -39,7 +45,20 @@
                     readonly
             />
         </div>
-        <button class="btn btn-primary">돌아가기</button>
+        <button
+                type="button"
+                class="btn btn-primary"
+                onclick="location.href='/board/update/{{board.id}}/'"
+        >
+            update
+        </button>
+        <button
+                type="button"
+                class="btn btn-info btn-primary btn-block"
+                onclick="location.href='/board/list/'"
+        >
+            Lists
+        </button>
     </div>
 </div>
 {% endblock %}

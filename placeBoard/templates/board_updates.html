@@ -13,7 +13,7 @@
                         class="form-control"
                         name="{{field.name}}"
                         placeholder="{{ field.label }}"
-                ></textarea>
+                >{{field.value}}</textarea>
 
                 {% elif field.name == 'placeNum' %}
                 <input
@@ -23,6 +23,7 @@
                         placeholder="{{ field.label }}"
                         name="{{ field.name }}"
                         oninput="this.value=this.value.replace(/[^0-9]/g,'');"
+                        value="{{field.value}}"
                 />
 
                 {% else %}
@@ -32,6 +33,7 @@
                         id="{{ field.id_for_label }}"
                         placeholder="{{ field.label }}"
                         name="{{ field.name }}"
+                        value="{{field.value}}"
                 />
                 {% endif %}
             </div>

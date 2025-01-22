@@ -19,14 +19,16 @@ def is_valid_email(email):
         return False
 
 #Home
-def Home(request):
+def home(request):
     user_id = request.session.get('user')
 
+    '''
     if user_id:
         member = BoardMember.objects.get(pk=user_id)
         return HttpResponse(member.username)
+    '''
 
-    return HttpResponse('Home!')
+    return render(request, 'home.html')
 
 # login 페이지
 def login(request):
@@ -36,6 +38,7 @@ def login(request):
         # POST 안에 있는 데이터가 form 변수에 들어간다.
     if request.method == "POST":
         form = LoginForm(request.POST)
+
         if form.is_valid():
             # session_code 검증하기
             request.session['user'] = form.user_id

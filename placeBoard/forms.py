@@ -12,7 +12,7 @@ class BoardForm(forms.Form):
     }, max_length=50, label="업체명")
     placeNum = forms.CharField(error_messages={
         'required': '업체 전화 번호를 입력하세요.'
-    }, max_length=15, label="전화 번호", widget=forms.TextInput(attrs={'placeholder': '010-1234-5678'}))
+    }, max_length=15, label="전화 번호", )
     address = forms.CharField(error_messages={
         'required': '주소를 입력하세요.'
     }, max_length=100, label="주소")
