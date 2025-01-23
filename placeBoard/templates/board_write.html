@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row mt-5">
     <div class="col-12">
-        <form method="POST" action="." enctype="multipart/form-data">
+        <form method="POST" action="." enctype="multipart/form-data" id="uploadForm">
             {% csrf_token %}
             {% for field in form %}
             <div class="form-group">
@@ -11,6 +11,7 @@
                 {% if field.name == 'address' %}
                 <textarea
                         class="form-control"
+                        id="{{ field.id_for_label }}"
                         name="{{field.name}}"
                         placeholder="{{ field.label }}"
                 ></textarea>
@@ -39,6 +40,9 @@
             <span style="color: red;">{{ field.errors }}</span>
             {% endif %}
             {% endfor %}
+            <br>
+            <img src="#" id="preview"  width="300" alt="이미지 미리보기" style="max-width: 300px; display: none;">
+            <br>
             <button type="submit" class="btn btn-primary">submit</button>
             <button
                     type="button"
@@ -49,4 +53,37 @@
         </form>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(function(input) {
+            input.addEventListener('change', function(event) {
+                const file = this.files[0];
+                if (file) { const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('preview');
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+    });
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch('/upload_image_url/', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-CSRFToken': '{{ csrf_token }}'
+            }
+        }).then(response => response.json())
+            .then(data => {
+                if (data.url) {
+                    document.getElementById('preview').src = data.url;
+                }
+            }).catch(error => console.error('Error:', error));
+    });
+</script>
 {% endblock %}
