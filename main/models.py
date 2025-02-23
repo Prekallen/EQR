@@ -1,24 +1,18 @@
 from django.db import models
 
 # Create your models here.
-class Question(models.Model):
-    subject = models.CharField(max_length=200)
-    content = models.TextField()
-    create_date = models.DateTimeField(auto_now_add=True)
+class Participant(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name='기본키') # 기본키(Primary Key)
+    name = models.CharField(max_length=100, verbose_name='이름') # 이름
+    num = models.CharField(max_length=20,verbose_name='전화번호') # 전화번호
+    # mail = models.EmailField(verbose_name='이메일') # 이메일
+    placeId = models.IntegerField(verbose_name='업체 기본키') # 업체 기본값
+    dupl = models.BooleanField(default=False) # 중복 참여 여부
+    date = models.DateTimeField(auto_now_add=True) # 참여일
 
-class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    content = models.TextField()
-    create_date = models.DateTimeField(auto_now_add=True)
-
-#게시글(Post)엔 제목(postname), 내용(contents)이 존재합니다
-class Post(models.Model):
-    postname = models.CharField(max_length=50)
-    contents = models.TextField()
-    #게시글 Post에 이미지 추가
-    mainphoto = models.ImageField(blank=True, null=True)
-    create_date = models.DateTimeField(auto_now_add=True)
-    #게시글의 제목(postname)이 Post object 대신하기
     def __str__(self):
-        return self.postname
-    #pass
+        return self.name
+    class Meta:
+        db_table            = 'event_participants'
+        verbose_name        = '이벤트 참여자'
+        verbose_name_plural = '이벤트 참여자'

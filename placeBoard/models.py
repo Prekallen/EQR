@@ -1,4 +1,5 @@
 from django.db import models
+from eqr.utils import get_lat_lng
 from phonenumber_field.modelfields import PhoneNumberField
 
 class PlaceBoard(models.Model):
@@ -13,8 +14,22 @@ class PlaceBoard(models.Model):
     created_at  = models.DateTimeField(auto_now_add=True, verbose_name="작성일")
     updated_at  = models.DateTimeField(auto_now=True, verbose_name="최종 수정일")
 
+    #위도 경도
+    latitude    = models.FloatField(null=True, blank=True, verbose_name="위도")
+    longitude   = models.FloatField(null=True, blank=True, verbose_name="경도")
+
     def __str__(self):
-        return self.title
+        return self.place
+
+    def save(self, *args, **kwargs):
+        if self.address and (not self.latitude or not self.longitude):
+            lat, lng = get_lat_lng(self.address)
+            if lat and lng:
+                self.latitude = lat
+                self.longitude = lng
+            else:
+                print(f"{self.place}의 좌표를 찾을 수 없습니다.")
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table            = 'placeBoards'

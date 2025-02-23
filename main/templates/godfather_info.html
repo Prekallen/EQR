@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load mul %}
+{% block content %}
+<div class="container">
+    <div class="event-description">
+        <h1>갓파더위크</h1>
+        <p>
+            갓파더위크에 오신 것을 환영합니다! 이 이벤트는 특별한 경험을 제공합니다. 다양한 활동과 이벤트에 참여하여
+            즐거운 시간을 보내세요. 갓파더위크는 친구들과 함께 즐길 수 있는 최고의 이벤트입니다. 다양한
+            경품이 준비되어 있으니 많은 참여 바랍니다.
+        </p>
+    </div>
+    <div class="event-button">
+        <button class="btn btn-primary btn-lg" onclick="location.href='/event_map'">이벤트 참여하기</button>
+    </div>
+</div>
+{% endblock %}

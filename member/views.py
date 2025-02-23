@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.hashers import make_password, check_password
 
 from .forms import LoginForm
@@ -18,17 +18,11 @@ def is_valid_email(email):
     except ValidationError:
         return False
 
-#Home
-def home(request):
+#manager
+def manager(request):
     user_id = request.session.get('user')
-
-    '''
-    if user_id:
-        member = BoardMember.objects.get(pk=user_id)
-        return HttpResponse(member.username)
-    '''
-
-    return render(request, 'home.html')
+    username = get_object_or_404(BoardMember, pk=user_id)
+    return render(request, 'manager.html',{'user':username})
 
 # login 페이지
 def login(request):
@@ -42,44 +36,18 @@ def login(request):
         if form.is_valid():
             # session_code 검증하기
             request.session['user'] = form.user_id
-            return redirect('/')
+            return redirect('/manager/')
     else:
         form = LoginForm()
         # 빈 클래스 변수를 만든다.
     return render(request, 'login.html', {'form':form})
-'''
-def login(request):
-    
-    if request.method == "GET":
-        return render(request, 'member/login.html')
-    elif request.method == "POST":
-        username = request.POST.get('username', None)
-        password = request.POST.get('password', None)
 
-        res_data = {}
-        if not (username and password):
-            res_data['error'] = '모든 값을 입력하세요!'
-        else:
-            member = BoardMember.objects.get(username = username)
-            # 앞의 username 은 필드명, 모델안에서 어떤 속성값을 나타내는 것이고,
-            # 뒤의 username 은 위에 로그인 할 때 입력받은 username 을 'username' 이라는 변수명에 담은 것이다.
-            if check_password(password, member.password):
-                #session
-                #redirect
-                # 비밀번호가 일치하는 경우이므로, 로그인 처리를 하는 세션과 리다이렉트를 적용할 예정이다.
-                request.session['user'] = member.id
-                return redirect('/')
-            else:
-                res_data['error'] = '비밀번호가 다릅니다!'
-
-        return render(request, 'member/login.html', res_data)
-'''
 #logout
 def logout(request):
     if request.session.get('user'):
         del(request.session['user'])
 
-    return redirect('/')    # 아! 로그인을 안했을 때!, user_id 가 없을 때? (세션이 만료되었을 때?)
+    return redirect('/manager/')    # 아! 로그인을 안했을 때!, user_id 가 없을 때? (세션이 만료되었을 때?)
 
 # 회원가입 페이지
 def register(request):
@@ -109,6 +77,7 @@ def register(request):
                     email=email,
                 )
                 member.save()
+                return redirect('/manager/')
         else:
             res_data['error'] = '유효하지 않은 이메일 형식입니다.'
 
