@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os   #static path를 위해
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,16 +20,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-k+=(x9e#b%wxk1p*@$u%s%sa=kc2q8qs7ra@%d@&f#l&*-ybnv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# 네이버맵 CLIENT_ID Setting
+NAVER_MAP_CLIENT_ID = config('NAVER_MAP_CLIENT_ID')
+
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    '172.30.1.99',  # cmd ipconfig address
+    '0.0.0.0',
+    #'172.30.1.44',  # cmd ipconfig address
+    '54.180.195.59', # AWS EC2 Public IP
 
 ]
 
@@ -55,6 +62,8 @@ INSTALLED_APPS += [
     'myapp',
     #'member.apps.MemberConfig',
     'member',
+    #'partBoard.apps.partBoardConfig',
+    'partBoard',
     #'placeBoard.apps.placeBoardConfig',
     'placeBoard',
 ]
@@ -94,6 +103,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media', #이미지 관련
             ],
         },
     },
@@ -118,7 +128,7 @@ DATABASES = {
 # - pip install python-decouple 실행
 # -app과 같은 level에서 setting ini 파일을 만들고 설정
 
-from decouple import config
+
 
 SECRET_KEY = config('DJANGO_SECRET_KEY')
 #PostgreSQL 설정
@@ -169,10 +179,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
-#static 설정
+
+# 정적 파일 디렉토리 설정
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+
+# 정적 파일을 수집할 디렉토리 설정
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 #Media 설정
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

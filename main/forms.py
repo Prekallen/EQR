@@ -23,6 +23,11 @@ class ParticipantForm(forms.ModelForm):
         ]
     )
 
+    receiptImage = forms.ImageField(error_messages={
+        'required': '영수증 사진을 올려주세요.'
+    }, label="영수증 사진",
+    )
+
     placeId = forms.IntegerField(error_messages={
         'required': '가게를 검색해 선택해 주세요.'
     }, label="가게",
@@ -31,7 +36,7 @@ class ParticipantForm(forms.ModelForm):
 
     class Meta:
         model = Participant
-        fields = ['name', 'num',  'placeId']    #'email',
+        fields = ['name', 'num',  'placeId', 'receiptImage']    #'email',
 
 '''
  email = forms.EmailField(error_messages={

@@ -26,6 +26,7 @@ urlpatterns = ([
     path('', include('main.urls')),
     path('member/', include('member.urls')),
     path('board/', include('placeBoard.urls')),
+    path('part/', include('partBoard.urls')),
     path('manager/',manager),
 ]
 # 다른 url 패턴들

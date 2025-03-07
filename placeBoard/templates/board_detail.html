@@ -50,14 +50,14 @@
                 class="btn btn-primary"
                 onclick="location.href='/board/update/{{board.id}}/'"
         >
-            update
+            변경
         </button>
         <button
                 type="button"
                 class="btn btn-info btn-primary btn-block"
-                onclick="location.href='/board/list/'"
+                onclick="location.href='{% if page_number %}/board/list/?p={{ page_number }}{% else %}/board/list/{% endif %}'"
         >
-            Lists
+            매장 리스트
         </button>
     </div>
 </div>

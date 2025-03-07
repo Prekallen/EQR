@@ -52,44 +52,29 @@
                         name="placeImage"
                 />
             </div>
-            <button type="submit" class="btn btn-primary">submit</button>
+            <button type="submit" class="btn btn-primary">등록</button>
             <button
                     type="button"
                     class="btn btn-info btn-primary btn-block"
                     onclick="location.href='/board/list/'"
             >
-                Lists
+                매장 리스트
             </button>
-
-
         </form>
     </div>
 </div>
+
 <script>
     document.getElementById('placeImage').addEventListener('change', function(event) {
         const file = this.files[0];
-        if (file) { const reader = new FileReader();
+        if (file) {
+            const reader = new FileReader();
             reader.onload = function(e) {
                 const preview = document.getElementById('preview');
                 preview.src = e.target.result;
             }
             reader.readAsDataURL(file);
         }
-    });
-    document.getElementById('uploadForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(this);
-        fetch('/upload_image_url/', {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-CSRFToken': '{{ csrf_token }}'
-            }
-        }).then(response => response.json())
-            .then(data => {
-                if (data.url) {
-                    document.getElementById('preview').src = data.url;
-                }
-            }).catch(error => console.error('Error:', error));
     });
 </script>
 {% endblock %}

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
 <style>
     .ui-autocomplete {
         z-index: 1001;
@@ -9,12 +10,13 @@
         display: none;
     }
 </style>
-<div class="row mt-5">
-    <div class="col-12">
-        <form method="POST" action="." enctype="multipart/form-data" id="eventPartForm">
-            {% csrf_token %}
+<div class="container mt-5">
+    <h1>이벤트 참여</h1>
+    <form method="POST" action="." enctype="multipart/form-data" id="eventPartForm">
+        {% csrf_token %}
+        <div class="form-row">
             {% for field in form %}
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label for="{{ field.id_for_label }}">{{ field.label }}</label>
 
                 {% if field.name == 'num' %}
@@ -44,28 +46,24 @@
                         name="{{ field.name }}"
                 />
                 {% endif %}
+                {% if field.errors %}
+                <span style="color: red;">{{ field.errors }}</span>
+                {% endif %}
             </div>
-            {% if field.errors %}
-            <span style="color: red;">{{ field.errors }}</span>
-            {% endif %}
             {% endfor %}
-            <br>
-            <img src="#" id="preview"  width="300" alt="이미지 미리보기" style="max-width: 300px; display: none;">
-            <br>
-            <button type="submit" class="btn btn-primary">submit</button>
-            <button
-                    type="button"
-                    class="btn btn-info btn-primary btn-block"
-                    onclick="location.href='/board/list/'"
-            >Lists
-            </button>
-        </form>
-    </div>
+        </div>
+        <div class="form-group">
+            <img src="#" id="preview" width="300" alt="이미지 미리보기" style="max-width: 300px; display: none;">
+        </div>
+        <button type="submit" class="btn btn-success">참여 완료</button>
+        <button type="button" class="btn btn-secondary" onclick="location.href='/places/'">이벤트 매장 리스트</button>
+    </form>
 </div>
 <!-- autocomplete를 사용하기 위한 script-->
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
+    /* 검색 반자동 완성 */
     $(function() {
         $("#place").autocomplete({
             source: "{% url 'autocomplete' %}",
@@ -75,6 +73,45 @@
                 $("#{{ form.placeId.id_for_label }}").val(ui.item.value);
                 return false;
             }
+        });
+    });
+
+    /* URL에서 placeId 값을 가져와서 입력 필드에 설정 */
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const placeId = urlParams.get('placeId');
+        if (placeId) {
+            fetch(`/autocomplete/?id=${placeId}`)
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.length > 0) {
+                        const placeName = data[0].label; // 데이터가 [{ "label": "Place Name", "value": "placeId" }] 형식이라고 가정
+                        document.getElementById('place').value = placeName;
+                        document.getElementById('id_placeId').value = placeId; // placeId hidden 필드의 ID를 명시적으로 입력
+                    }
+                })
+                .catch(error => console.error('Error fetching place name:', error));
+        }
+    });
+
+    /* 이미지 미리보기 */
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(function(input) {
+            input.addEventListener('change', function(event) {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('preview');
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
         });
     });
 </script>
