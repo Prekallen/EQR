@@ -15,7 +15,7 @@ from main.forms import ParticipantForm
 from main.models import Participant
 from placeBoard.models import PlaceBoard
 from django.contrib import messages
-import datetime
+import datetime, json
 
 
 # Create your views here.
@@ -27,8 +27,24 @@ def godfather_info(request):
 
 def event_map(request):
     places = PlaceBoard.objects.all()  # 모든 매장을 가져옴
-    unique_areas = places.values_list('area', flat=True).distinct()
-    return render(request, 'event_map.html', {'places': places, 'unique_areas': unique_areas})
+    places_list = []
+    # 각 매장의 정보를 딕셔너리 리스트로 구성
+    places_list = [{
+        'name': place.place,
+        'address': place.address,
+        'lat': place.latitude,
+        'lng': place.longitude,
+        'area': place.area,
+    } for place in places]
+
+    # 고유 지역 정보 추출 (리스트로 변환)
+    unique_areas = list(places.values_list('area', flat=True).distinct())
+    context = {
+        'places_json': json.dumps(places_list),
+        'unique_areas': unique_areas,
+    }
+
+    return render(request, 'event_map.html', context)
 
 def haversine(lat1, lon1, lat2, lon2):  # 거리 계산
     R = 6371.0  # 지구 반지름(km)
@@ -51,7 +67,7 @@ def place_list(request):
         place_list = PlaceBoard.objects.filter(place__icontains=query)
     else:
         # 검색어가 없는 경우
-        place_list = PlaceBoard.objects.all()
+        place_list = PlaceBoard.objects.all().order_by('id')
 
         if lat and lng:
             try:
@@ -111,82 +127,112 @@ def place_list(request):
 
     return render(request, 'placeList.html', context)
 
+#3-A-2. 업장 클릭 시, 업장 정보 노출
+def place(request, place_id):
+    place = get_object_or_404(PlaceBoard, pk=place_id)
+    return render(request, 'place.html', {'place': place})
+
 # 3-B-1. 개인 정보 제공 동의 페이지 노출 (팝업 or 페이지)
 def event_check(request):
 
     return render( request, 'eventCheck.html')
 
-# 3-B-2. 개인 정보 인력 (이름, 휴대폰 번호)
+# 3-B-2. 개인 정보 인력 (이름, 휴대폰 번호, 사진)
 def events(request):
     if request.method == "GET":
         form = ParticipantForm()
-        # placeBoard 업체 리스트 조회 (가정: PlaceBoard 모델을 사용)
         place_list = PlaceBoard.objects.all()
+        return render(request, 'event.html', {'form': form, 'place_list': place_list})
 
-        return render(request, 'event.html', {'form':form, 'place_list':place_list})
     elif request.method == "POST":
-        form = ParticipantForm(request.POST)
+        form = ParticipantForm(request.POST, request.FILES) # request.FILES 추가(이미지)
         if form.is_valid():
             name = form.cleaned_data.get('name')
             num = form.cleaned_data.get('num')
-            # mail = form.cleaned_data.get('mail')
+            receipt_image = form.cleaned_data.get('receiptImage')
             place_id = form.cleaned_data.get('placeId')
             now = timezone.now()
-            time_threshold = now - datetime.timedelta(hours=12)  # 예: 12시간 이내 중복 검사
+            time_threshold = now - datetime.timedelta(hours=12)
             place_board = PlaceBoard.objects.get(id=place_id)
             dupl = False
 
-
-            # 중복 여부 검사
             duplicate_time_check = Participant.objects.filter(
                 Q(name=name) & Q(num=num) & Q(placeId=place_id) & Q(date__gte=time_threshold)
             ).exists()
-            # 중복 체크 후 중복 여부 및 중복 등록
             duplicate_check = Participant.objects.filter(
                 Q(name=name) & Q(num=num) & Q(placeId=place_id)
             ).exists()
 
             if duplicate_time_check:
-                messages.error(request, "중복된 참가자가 이미 등록되었습니다.")
+                messages.error(request, "이미 등록되었습니다.")
+                print('이미 등록되었습니다.')
+                duplicate_check = Participant.objects.filter(
+                    Q(name=name) & Q(num=num)
+                )
+                print('dupl_id :::: ' + str(duplicate_check.first().id))
+                # 중복된 id 목록에서 첫 번째 id를 가져옵니다
+                return redirect('stamp', id=duplicate_check.first().id)
             else:
-                dupl = duplicate_check  # 중복 여부 설정
+                dupl = duplicate_check
                 if duplicate_check:
-                    #기존 중복 되어 있던 참가자 중복 여부 상태 변경
                     existing_participant = Participant.objects.get(
                         Q(name=name) & Q(num=num) & Q(placeId=place_id)
                     )
-                    if existing_participant.dupl is False:
+                    if not existing_participant.dupl:
                         existing_participant.dupl = True
                         existing_participant.save()
 
-                        # 중복 참여 인원 추가
-                        place_board = PlaceBoard.objects.get(id=place_id)
-                        place_board.duplPartNum += 1
-                        place_board.save()
+                    update_place_board(place_board, dupl)
+                    new_participant = create_participant(name, num, place_id, receipt_image, dupl)
+                else:
+                    new_participant = create_participant(name, num, place_id, receipt_image, dupl)
+                    update_place_board(place_board, dupl)
 
-                else :
+                messages.success(request, "참가자가 성공적으로 등록되었습니다.")
+                return redirect('stamp', id=new_participant.id)
 
-                    # 새로운 참가자 생성 및 저장
-                    new_participant(name,num,place_id,dupl) # mail,
+        else:
+            # 폼이 유효하지 않은 경우 오류 메시지 표시
+            error_message = form.errors.as_json()
+            messages.error(request, "입력창에 모두 올바르게 입력했는지 확인해주세요.")
+            place_list = PlaceBoard.objects.all()
+            return render(request, 'event.html', {'form': form, 'place_list': place_list})
 
-                    #placeBoard 참가자 인원 증가
-                    place_board = PlaceBoard.objects.get(id=place_id)
-                    place_board.partNum += 1
-                    place_board.save()
+        place_list = PlaceBoard.objects.all()
+        return render(request, 'event.html', {'form': form, 'place_list': place_list})
 
-                    messages.success(request, "참가자가 성공적으로 등록되었습니다.")
-                    return redirect('event_list')  # 이벤트 리스트 페이지로 리디렉션 (적절한 URL 이름으로 변경)
+    return HttpResponse(status=405)  # Method Not Allowed
 
-def new_participant(name, num, place_id, dupl): #mail,
+def new_participant(name, num, place_id ,receipt_image, dupl): #mail,
     save_participant = Participant(
         name=name,
         num=num,
         # mail=mail,
+        receiptImage = receipt_image,
         placeId=place_id,
         date=timezone.now(),
         dupl=dupl,
     )
     save_participant.save()
+
+def create_participant(name, num, place_id, receipt_image, dupl):
+    new_participant = Participant(
+        name=name,
+        num=num,
+        placeId=place_id,
+        receiptImage=receipt_image,
+        dupl=dupl
+    )
+    new_participant.save()
+    return new_participant
+
+def update_place_board(place_board, dupl):
+    if dupl:
+        place_board.duplPartNum += 1
+        place_board.partNum += 1
+    else:
+        place_board.partNum += 1
+    place_board.save()
 
 def autocomplete(request):
     if 'term' in request.GET:
@@ -196,6 +242,43 @@ def autocomplete(request):
             names.append({'label': place.place, 'value': place.id})
         return JsonResponse(names, safe=False)
     return JsonResponse([], safe=False)
+
+# 4-1. 이벤트 참여 진행도 스템프 형식으로 노출 (경품 노출 예정)
+def stamp(request, id):
+    # 전달받은 id를 기준으로 첫번째 참가자를 가져옵니다.
+    participant = get_object_or_404(Participant, id=id)
+
+    # name과 num이 같은 모든 참가자 정보를 가져옵니다.
+    duplicate_entries = Participant.objects.filter(
+        Q(name=participant.name) & Q(num=participant.num)
+    )
+
+    # stamp_count는 중복 참가자 총 수 (0 ~ 6 사이, 6 초과는 6로 처리)
+    participant_count = duplicate_entries.count()
+    stamp_count = participant_count if participant_count <= 6 else 6
+
+    # 중복 참가자들의 정보를 담을 리스트를 만듭니다.
+    # 각 항목은 참가자의 receiptImage, date, 그리고 해당 참가자의 placeId를 통해 PlaceBoard의 place 정보를 함께 담습니다.
+    duplicate_info = []
+    for dup in duplicate_entries:
+        # 각 참가자가 가진 placeId를 통해 PlaceBoard 정보 조회
+        # (ForeignKey가 아니라 단순 id 필드라면 get_object_or_404 사용)
+        place_board = get_object_or_404(PlaceBoard, id=dup.placeId)
+
+        duplicate_info.append({
+            'participant_id': dup.id,
+            'receiptImage': dup.receiptImage,  # 실제 이미지 URL이나 이미지 객체
+            'date': dup.date,
+            'place': place_board.place,        # PlaceBoard의 장소 정보, 예를 들어 'place' 필드
+            'placeId': dup.placeId,
+        })
+
+    context = {
+        'participant': participant,  # 기준 참가자 정보
+        'duplicates': duplicate_info,  # 중복된 각 참가자의 상세 정보 리스트
+        'stamp_count': stamp_count,    # 0 ~ 6 사이의 참가 수로 스탬프 표시에 사용
+    }
+    return render(request, 'stamp.html', context)
 
 '''
 # blog.html 페이지를 부르는 blog 함수

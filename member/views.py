@@ -20,9 +20,13 @@ def is_valid_email(email):
 
 #manager
 def manager(request):
-    user_id = request.session.get('user')
-    username = get_object_or_404(BoardMember, pk=user_id)
-    return render(request, 'manager.html',{'user':username})
+    if request.session.get('user'):
+        user_id = request.session.get('user')
+        board_member = get_object_or_404(BoardMember, pk=user_id)
+        return render(request, 'manager.html', {'user': board_member})
+    else:
+        return redirect('/member/login/')
+
 
 # login 페이지
 def login(request):

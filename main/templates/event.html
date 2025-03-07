@@ -66,6 +66,7 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
+    /*검색 반자동 완성*/
     $(function() {
         $("#place").autocomplete({
             source: "{% url 'autocomplete' %}",
@@ -75,6 +76,23 @@
                 $("#{{ form.placeId.id_for_label }}").val(ui.item.value);
                 return false;
             }
+        });
+    });
+    /* 이미지 미리보기 */
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(function(input) {
+            input.addEventListener('change', function(event) {
+                const file = this.files[0];
+                if (file) { const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('preview');
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
         });
     });
 </script>

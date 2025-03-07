@@ -15,10 +15,14 @@ urlpatterns = [
     path('event_map/', views.event_map, name='event_map'),
     # 3-A-1. 전체 업장 리스트 노출
     path('places/', views.place_list, name='place_list'),
+    #3-A-2. 업장 클릭 시, 업장 정보 노출
+    path('place/<int:place_id>/', views.place, name='place_detail'),
     # 3-B-1. 개인 정보 제공 동의 페이지 노출 (팝업 or 페이지)
     path('eventCheck/', views.event_check, name='eventCheck'),
     # 3-B-2. 개인 정보 입력 (이름, 휴대폰 번호)
     path('events/', views.events, name='events'),
+    # 4-1. 이벤트 참여 진행도 스템프 형식으로 노출
+    path('stamp/<int:id>/', views.stamp, name='stamp'),
 
     # 개인 정보 입력시 placeId 반자동화 검색(Json)
     path('autocomplete/', views.autocomplete, name='autocomplete'),

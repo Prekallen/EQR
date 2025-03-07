@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    '172.30.1.99',  # cmd ipconfig address
+    '10.138.51.41',  # cmd ipconfig address
 
 ]
 
@@ -55,6 +55,8 @@ INSTALLED_APPS += [
     'myapp',
     #'member.apps.MemberConfig',
     'member',
+    #'partBoard.apps.partBoardConfig',
+    'partBoard',
     #'placeBoard.apps.placeBoardConfig',
     'placeBoard',
 ]
@@ -94,6 +96,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media', #이미지 관련
             ],
         },
     },
@@ -169,10 +172,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
-#static 설정
+
+# 정적 파일 디렉토리 설정
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+
+# 정적 파일을 수집할 디렉토리 설정
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 #Media 설정
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
