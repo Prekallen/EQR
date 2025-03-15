@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
 <style>
     .ui-autocomplete {
         z-index: 1001;
@@ -16,7 +15,7 @@
         {% csrf_token %}
         <div class="form-row">
             {% for field in form %}
-            <div class="form-group col-md-6">
+            <div class="form-group">
                 <label for="{{ field.id_for_label }}">{{ field.label }}</label>
 
                 {% if field.name == 'num' %}
@@ -46,10 +45,10 @@
                         name="{{ field.name }}"
                 />
                 {% endif %}
-                {% if field.errors %}
-                <span style="color: red;">{{ field.errors }}</span>
-                {% endif %}
             </div>
+            {% if field.errors %}
+            <span style="color: red;">{{ field.errors }}</span>
+            {% endif %}
             {% endfor %}
         </div>
         <div class="form-group">
@@ -73,45 +72,6 @@
                 $("#{{ form.placeId.id_for_label }}").val(ui.item.value);
                 return false;
             }
-        });
-    });
-
-    /* URL에서 placeId 값을 가져와서 입력 필드에 설정 */
-    document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const placeId = urlParams.get('placeId');
-        if (placeId) {
-            fetch(`/autocomplete/?id=${placeId}`)
-                .then(response => {
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.length > 0) {
-                        const placeName = data[0].label; // 데이터가 [{ "label": "Place Name", "value": "placeId" }] 형식이라고 가정
-                        document.getElementById('place').value = placeName;
-                        document.getElementById('id_placeId').value = placeId; // placeId hidden 필드의 ID를 명시적으로 입력
-                    }
-                })
-                .catch(error => console.error('Error fetching place name:', error));
-        }
-    });
-
-    /* 이미지 미리보기 */
-    document.addEventListener('DOMContentLoaded', function() {
-        const fileInputs = document.querySelectorAll('input[type="file"]');
-        fileInputs.forEach(function(input) {
-            input.addEventListener('change', function(event) {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const preview = document.getElementById('preview');
-                        preview.src = e.target.result;
-                        preview.style.display = 'block';
-                    }
-                    reader.readAsDataURL(file);
-                }
-            });
         });
     });
 </script>

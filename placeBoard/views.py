@@ -72,6 +72,7 @@ def board_write(request):
         form = BoardForm(request.POST, request.FILES)
 
         if form.is_valid():
+            # form의 모든 validators 호출 유효성 검증 수행
             user_id = request.session.get('user')
             member = BoardMember.objects.get(pk=user_id)
 
@@ -89,7 +90,7 @@ def board_write(request):
     else:
         form = BoardForm()
 
-    return render(request, 'board_write.html', {'form': form})
+    return render(request, 'board_write.html', {'form':form})
 
  #
 def board_detail(request, pk):
@@ -159,7 +160,7 @@ def board_update(request, pk):
     else:
         form = BoardForm(instance=instance)
 
-    return render(request, 'board_update.html', {'form': form, 'board': pre_board})
+    return render(request, 'board_update.html', {'form':form,'board':pre_board})
 
 def upload_image_view(request):
     if request.method == 'POST' and request.FILES.get('placeImage'):

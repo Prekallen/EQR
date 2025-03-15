@@ -12,17 +12,6 @@
           integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
           crossorigin="anonymous"
         /> -->
-        <!-- 네이버맵 관련 -->
-        <script type="text/javascript">
-            const naverMapClientId = "{{ NAVER_MAP_CLIENT_ID }}";
-            const script1 = document.createElement('script');
-            script1.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${naverMapClientId}`;
-            document.head.appendChild(script1);
-
-            const script2 = document.createElement('script');
-            script2.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${naverMapClientId}&submodules=geocoder`;
-            document.head.appendChild(script2);
-        </script>
 
         <script
                 src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
