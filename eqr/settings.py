@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-k+=(x9e#b%wxk1p*@$u%s%sa=kc2q8qs7ra@%d@&f#l&*-ybnv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # 네이버맵 CLIENT_ID Setting
 NAVER_MAP_CLIENT_ID = config('NAVER_MAP_CLIENT_ID')
